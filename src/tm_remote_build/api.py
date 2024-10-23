@@ -9,9 +9,10 @@ logger = logging.getLogger(__name__)
 
 
 class OpenplanetTcpSocket:
-    def __init__(self, port: int) -> None:
+    def __init__(self, port: int, host_addr: str) -> None:
         self.socket = socket(AF_INET, SOCK_STREAM)
         self.port = port
+        self.host_addr = host_addr
         self.connected = False
 
     def try_connect(self) -> bool:
@@ -20,7 +21,7 @@ class OpenplanetTcpSocket:
 
         self.socket.settimeout(0.01)
         try:
-            self.socket.connect(("localhost", self.port))
+            self.socket.connect((self.host_addr, self.port))
             logger.debug(f"Connected to {str(self.socket)}")
             self.connected = True
         except Exception as e:
@@ -76,8 +77,8 @@ class OpenplanetTcpSocket:
 
 
 class RemoteBuildAPI:
-    def __init__(self, port: int) -> None:
-        self.openplanet = OpenplanetTcpSocket(port)
+    def __init__(self, port: int, host_addr: str) -> None:
+        self.openplanet = OpenplanetTcpSocket(port, host_addr)
         self.data_folder = ""
         self.op_log = OpenplanetLog()
         self.get_data_folder()
