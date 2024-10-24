@@ -33,7 +33,10 @@ class OpenplanetLog:
 
     def set_path(self, file_path) -> None:
         if os.path.isfile(file_path):
+            logger.debug(f"Using {file_path} as log file")
             self.file_path = file_path
+        else:
+            logger.error(f"Log file not found at {file_path}")
 
     def start_monitor(self) -> None:
         if not os.path.isfile(self.file_path):

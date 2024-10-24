@@ -21,7 +21,7 @@ def get_port(args) -> int:
 
 
 def unload(args) -> None:
-    api = RemoteBuildAPI(get_port(args), args.host)
+    api = RemoteBuildAPI(get_port(args), args.host, args.openplanet_directory)
     unloaded = api.unload_plugin(args.plugin_id)
     if unloaded:
         logger.info('Commanded unload for plugin with ID "%s"' % (args.plugin_id,))
@@ -32,7 +32,7 @@ def unload(args) -> None:
 
 
 def load(args) -> None:
-    api = RemoteBuildAPI(get_port(args), args.host)
+    api = RemoteBuildAPI(get_port(args), args.host, args.openplanet_directory)
     loaded = api.load_plugin(
         args.plugin_id, plugin_src=args.plugin_src, plugin_type=args.plugin_type
     )
@@ -71,7 +71,13 @@ def main() -> None:
         sub_input.add_argument(
             "--host",
             default="localhost",
-            help="Optionally specify the host address where Openplanet is running. Default is localhost"
+            help="Optionally specify the host address where Openplanet is running. Default is localhost",
+        )
+        sub_input.add_argument(
+            "-d",
+            "--openplanet-directory",
+            default="",
+            help="Optionally specify the Openplanet directory if the tool has trouble finding the log file",
         )
         sub_input.add_argument(
             "-v",

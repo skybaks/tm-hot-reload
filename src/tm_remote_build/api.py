@@ -26,7 +26,7 @@ class OpenplanetTcpSocket:
             self.connected = True
         except Exception as e:
             logger.debug(
-                f"Error connecting to socket on port {str(self.port)}: {str(e)}"
+                f"Error connecting to {self.host_addr}:{str(self.port)}: {str(e)}"
             )
             self.connected = False
         self.socket.settimeout(None)
@@ -77,11 +77,13 @@ class OpenplanetTcpSocket:
 
 
 class RemoteBuildAPI:
-    def __init__(self, port: int, host_addr: str) -> None:
+    def __init__(self, port: int, host_addr: str, data_folder: str = "") -> None:
         self.openplanet = OpenplanetTcpSocket(port, host_addr)
-        self.data_folder = ""
+        self.data_folder = data_folder
         self.op_log = OpenplanetLog()
-        self.get_data_folder()
+        if not self.data_folder:
+            self.get_data_folder()
+        self.op_log.set_path(os.path.join(self.data_folder, "Openplanet.log"))
 
     def send_route(self, route: str, data: dict) -> dict:
         response = {}
@@ -102,12 +104,8 @@ class RemoteBuildAPI:
     def get_data_folder(self) -> bool:
         if not self.get_status():
             return False
-
         response = self.send_route("get_data_folder", {})
-        response_data_folder = response.get("data", "")
-        if os.path.isdir(response_data_folder):
-            self.data_folder = response_data_folder
-            self.op_log.set_path(os.path.join(self.data_folder, "Openplanet.log"))
+        self.data_folder = response.get("data", "")
         return self.data_folder != ""
 
     def load_plugin(
